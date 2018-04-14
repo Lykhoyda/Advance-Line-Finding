@@ -114,4 +114,4 @@ Here's a [link to my video result](./output_tracked.mp4)
 
 ### Discussion
 
-Project still need more polyshing because, lines are not perfect at the top right and left of polynomial, especially when they shake in the turns.
+Project still need more polyshing because, lines are not perfect at the top right and left of polynomial, especially when they shake in the turns. Probably the height of the detection line can be a litle bit smaller, that will help reduce the noises in line detection. Also the algorithm should be improved using with different light conditions, so we need to add more colors filter when the image have high contrast or make the logic to apply different filters according to the light conditions(day, night, rain, fog)

@@ -107,8 +107,8 @@ def process_image(img):
     img = cv2.undistort(img, mtx, dist, None, mtx)
 
     preprocessImage = np.zeros_like(img[:, :, 0])
-    gradx = abs_sobel_thresh(img, orient="x", thresh=(12, 255))
-    grady = abs_sobel_thresh(img, orient="y", thresh=(12, 255))
+    gradx = abs_sobel_thresh(img, orient="x", thresh=(20, 255))
+    grady = abs_sobel_thresh(img, orient="y", thresh=(25, 255))
     c_binary = color_treshold(img, sthresh=(100, 255), vthresh=(50, 255))
     preprocessImage[((gradx == 1) & (grady == 1) | (c_binary == 1))] = 255
 
@@ -129,11 +129,11 @@ def process_image(img):
     warped = cv2.warpPerspective(
         preprocessImage, M, img_size, flags=cv2.INTER_LINEAR)
 
-    window_width = 25
-    window_height = 80
+    window_width = 35
+    window_height = 60
     # Set up the overall class to do all the tracking
     curve_centers = Tracker(Mywindow_width=window_width, Mywindow_height=window_height,
-                            Mymargin=25, My_ym=10/720, My_xm=4/384)
+                            Mymargin=35, My_ym=30/720, My_xm=4/384)
 
     window_centroids = curve_centers.find_window_centroids(warped)
 
@@ -226,9 +226,9 @@ def process_image(img):
 
     # draw the text showing curvature, offset, and speed
     cv2.putText(result, 'Radius of Curvature = '+str(round(curverad, 3)) +
-                '(m)', (50, 50), cv2.FONT_HERSHEY_SIMPLEX, 1, (5, 176, 249), 2)
+                '(m)', (50, 50), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
     cv2.putText(result, 'Vehicle is '+str(abs(round(center_diff, 3)))+'m '+side_pos +
-                ' of center', (50, 100), cv2.FONT_HERSHEY_SIMPLEX, 1, (5, 176, 249), 2)
+                ' of center', (50, 100), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
 
     return result
 

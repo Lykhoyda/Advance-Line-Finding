@@ -3,6 +3,9 @@ import cv2
 
 
 class Tracker():
+    prev_l_center = 0
+    prev_r_center = 0
+
     def __init__(self, Mywindow_width, Mywindow_height, Mymargin, My_ym=1, My_xm=1, Mysmooth_factor=15):
         # list that stores all the past (left,right,center) set values used for smoothing the output
         self.recent_centers = []
@@ -47,9 +50,21 @@ class Tracker():
         r_center = np.argmax(np.convolve(window, r_sum)) - \
             window_width/2+int(warped.shape[1]/2)
 
+        if Tracker.prev_l_center == 0:
+            Tracker.prev_l_center = l_center    # if first frame assign to class variable
+        elif abs(Tracker.prev_l_center - l_center) > self.margin*2:
+            # if center is too far away from prev center, assign it to prev center
+            l_center = Tracker.prev_l_center
+
+        if Tracker.prev_r_center == 0:
+            Tracker.prev_r_center = r_center    # if first frame assign to class variable
+        elif abs(Tracker.prev_r_center - r_center) > self.margin*2:
+            # if center is too far away from prev center, assign it to prev center
+            r_center = Tracker.prev_r_center
+
         # Add what we found for the 1st layer
         window_centroids.append((l_center, r_center))
-
+        signal_threshold = 10000.0
         # Go thru each layer looking for max pixel locations
         for level in range(1, (int)(warped.shape[0]/window_height)):
             # convolve the window into the vertical slice of the image
@@ -61,13 +76,15 @@ class Tracker():
             offset = window_width/2
             l_min_index = int(max(l_center+offset-margin, 0))
             l_max_index = int(min(l_center+offset+margin, warped.shape[1]))
-            l_center = np.argmax(
-                conv_signal[l_min_index:l_max_index])+l_min_index-offset
+            if np.max(conv_signal[l_min_index:l_max_index]) >= signal_threshold:
+                l_center = np.argmax(
+                    conv_signal[l_min_index:l_max_index])+l_min_index-offset
             # Find the best right centroid by using past right center as a reference
             r_min_index = int(max(r_center+offset-margin, 0))
             r_max_index = int(min(r_center+offset+margin, warped.shape[1]))
-            r_center = np.argmax(
-                conv_signal[r_min_index:r_max_index])+r_min_index-offset
+            if np.max(conv_signal[r_min_index:r_max_index]) >= signal_threshold:
+                r_center = np.argmax(
+                    conv_signal[r_min_index:r_max_index])+r_min_index-offset
             # Add what we found for that layer
             window_centroids.append((l_center, r_center))
 
